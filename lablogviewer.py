@@ -100,14 +100,16 @@ class MainWindow(QtWidgets.QWidget):
 
     def update_plot(self):
         if self.columns:
-            data = np.loadtxt(self.le.text())
-            if self.cbx.currentText() in self.columns:
-                x = data[:,self.columns.index(self.cbx.currentText())]
-            if self.cby.currentText() in self.columns:
-                y = data[:,self.columns.index(self.cby.currentText())]
-                self.canvas.axes.cla()  # Clear the canvas.
-                self.canvas.axes.plot(x, y, 'ko-', ms=2)
-                self.canvas.draw()
+            # add try to avoid issues when the logfile is not completely written
+            try:
+                data = np.loadtxt(self.le.text())
+                if self.cbx.currentText() in self.columns:
+                    x = data[:,self.columns.index(self.cbx.currentText())]
+                if self.cby.currentText() in self.columns:
+                    y = data[:,self.columns.index(self.cby.currentText())]
+                    self.canvas.axes.cla()  # Clear the canvas.
+                    self.canvas.axes.plot(x, y, 'ko-', ms=2)
+                    self.canvas.draw()
 
 
 app = QtWidgets.QApplication(sys.argv)
