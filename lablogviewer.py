@@ -52,11 +52,10 @@ class MainWindow(QtWidgets.QWidget):
 
         self.canvas = MplCanvas(self, width=5, height=4, dpi=100)
         outer_layout = QtWidgets.QVBoxLayout()
-        outer_layout.addLayout(layout)
-        outer_layout.addLayout(layout)
         self.toolbar = NavigationToolbar(self.canvas, self)
         outer_layout.addWidget(self.toolbar)
         outer_layout.addWidget(self.canvas)
+        outer_layout.addLayout(layout)
 
         self.setLayout(outer_layout)
 
@@ -102,7 +101,8 @@ class MainWindow(QtWidgets.QWidget):
         if self.columns:
             # add try to avoid issues when the logfile is not completely written
             try:
-                data = np.loadtxt(self.le.text())
+                data = np.genfromtxt(self.le.text(), delimiter=' ',
+                        invalid_raise=False)
                 if self.cbx.currentText() in self.columns:
                     x = data[:,self.columns.index(self.cbx.currentText())]
                 if self.cby.currentText() in self.columns:
