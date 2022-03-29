@@ -110,6 +110,8 @@ class MainWindow(QtWidgets.QWidget):
                     self.canvas.axes.cla()  # Clear the canvas.
                     self.canvas.axes.plot(x, y, 'ko-', ms=2)
                     self.canvas.draw()
+            except:
+                print("Error reading logfile")
 
 
 app = QtWidgets.QApplication(sys.argv)
