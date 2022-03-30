@@ -13,7 +13,7 @@ from matplotlib.figure import Figure
 class MplCanvas(FigureCanvasQTAgg):
 
     def __init__(self, parent=None, width=5, height=4, dpi=100):
-        fig = Figure(figsize=(width, height), dpi=dpi)
+        fig = Figure(figsize=(width, height), dpi=dpi, constrained_layout=True)
         self.axes = fig.add_subplot(111)
         super(MplCanvas, self).__init__(fig)
 
@@ -38,8 +38,11 @@ class MainWindow(QtWidgets.QWidget):
         self.cbx = QtWidgets.QComboBox()
         self.cby = QtWidgets.QComboBox()
         self.btn_open = QtWidgets.QPushButton('open')
+        self.cb_autoscale = QtWidgets.QCheckBox('autoscale')
+        self.cb_autoscale.toggle()
         layout = QtWidgets.QGridLayout()
-        layout.addWidget(self.le, 0, 0, 1, 6)
+        layout.addWidget(QtWidgets.QLabel('File:'), 0,0,1,1)
+        layout.addWidget(self.le, 0, 1, 1, 5)
         layout.addWidget(self.btn_open, 0, 6, 1, 1)
         layout.addWidget(QtWidgets.QLabel('plot'), 1,0,1,1)
         layout.addWidget(self.cbx, 1, 1, 1, 1)
@@ -48,6 +51,7 @@ class MainWindow(QtWidgets.QWidget):
         layout.addWidget(QtWidgets.QLabel('and update every'), 1,4,1,1)
         layout.addWidget(self.le_delay, 1, 5, 1, 1)
         layout.addWidget(QtWidgets.QLabel('seconds'), 1,6,1,1)
+        layout.addWidget(self.cb_autoscale, 2,0,1,2)
 
 
         self.canvas = MplCanvas(self, width=5, height=4, dpi=100)
@@ -92,6 +96,7 @@ class MainWindow(QtWidgets.QWidget):
         self.le_delay.returnPressed.connect(self.change_delay)
         self.cbx.currentIndexChanged.connect(self.update_plot)
         self.cby.currentIndexChanged.connect(self.update_plot)
+        self.cb_autoscale.stateChanged.connect(self.update_plot)
 
     def change_delay(self):
         self.timer.setInterval(1000*int(self.le_delay.text()))
@@ -101,14 +106,19 @@ class MainWindow(QtWidgets.QWidget):
         if self.columns:
             # add try to avoid issues when the logfile is not completely written
             try:
+                self.canvas.axes.cla()  # Clear the canvas.
+                old_axis = self.canvas.axes.axis()
                 data = np.genfromtxt(self.le.text(), delimiter=' ',
                         invalid_raise=False)
                 if self.cbx.currentText() in self.columns:
                     x = data[:,self.columns.index(self.cbx.currentText())]
+                    self.canvas.axes.set_xlabel(self.cbx.currentText())
                 if self.cby.currentText() in self.columns:
                     y = data[:,self.columns.index(self.cby.currentText())]
-                    self.canvas.axes.cla()  # Clear the canvas.
+                    self.canvas.axes.set_ylabel(self.cby.currentText())
                     self.canvas.axes.plot(x, y, 'ko-', ms=2)
+                    if not self.cb_autoscale.isChecked():
+                        self.canvas.axes.axis(old_axis)
                     self.canvas.draw()
             except:
                 print("Error reading logfile")
