@@ -106,8 +106,8 @@ class MainWindow(QtWidgets.QWidget):
         if self.columns:
             # add try to avoid issues when the logfile is not completely written
             try:
-                self.canvas.axes.cla()  # Clear the canvas.
                 old_axis = self.canvas.axes.axis()
+                self.canvas.axes.cla()  # Clear the canvas.
                 data = np.genfromtxt(self.le.text(), delimiter=' ',
                         invalid_raise=False)
                 if self.cbx.currentText() in self.columns:
